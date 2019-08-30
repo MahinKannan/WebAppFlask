@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<head>
+	<link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,AAABAAEAEBAAAAEAIABoBAAAFgAAACgAAAAQAAAAIAAAAAEAIAAAAAAAAAQAACMuAAAjLgAAAAAAAAAAAAA/Mx//QTYw/0g6Rf9KPkr/Sj5F/0k8Qv9RSGb/VlB3/0c5Rv9EOEH/SDpD/0s9R/9HOUf/SDw6/0c4Lv9FNSL/SDsp/0E1O/9MQFr/TEBQ/01AYf9OQFH/T0Vl/3R1of9PRmH/RThM/0c6QP9JPUn/RDdW/0k8R/9FOjD/QzMg/3tvX/9ANkL/TD9f/01Adv9NQmn/TUJn/0tDdf9wa6T/WFKK/0Q4Vf9DN1T/SDxS/0c7X/9GOmH/OzIu/19NQf/As6v/hnSN/0c3ev9URZ7/S0Br/0lAe/9FPnn/SUd2/0tIdv9DN1//QzZm/0c7X/9GO3L/RDVv/1ZMYf+QfoL/vKuo/3BXoP9JO6n/TUCS/0k8hv9IPYn/Qj17/36AoP+Cg6b/QTht/z8wf/9BM4L/QDKA/0M0fv9fUXH/hnWC/7eiqf9NOpX/Rj6i/1JCsP9HO5L/RDiV/11dmv9vYbD/bl+x/1xalf88LJL/PS6N/z4ukv9HOpD/WEty/4Z3if+ol6v/Y1Kn/0E4k/9JPZ//Tj6y/0Q8j/90d6//ZVWt/2BPrP94eLL/RT2J/zsqhv9EM6H/TkKL/2FUff+QgJX/rp+m/419q/9bS7D/Rjum/09Ar/9ORaP/g4e8/4WBsf+BgLL/iIrD/1FMkP88Ko7/RjiU/1FEfP9/b4r/rZ+h/7Wqof+kk6T/ZFOa/0o8tf9LPZ3/T0ml/3x/vv96dLP/eHOz/4ODxP9VUaX/RTWd/0Q3ev9fToL/rJyi/7Onnv+qoJr/uq2k/3Ngj/9IPKH/QzaB/1hXof+NjsH/hYG9/4eCuf+RkcH/YFe2/0Axjv88MW3/fGiP/7iso/+pnpj/pJqS/62fn/9mU5n/PDKK/z81cP9XV5f/f32g/4R/s/+Ff67/e3ed/0w+ov9BMpb/QzaF/31rlP+soJ7/pJiQ/5uSif+pm5f/WkST/zkrof9BNn7/OjJh/0Q9VP9saJr/cmuU/0pCZv9AL5f/RjGq/z8wkP93ZJT/mo2S/5yQh/+SiIH/ppqP/2dRj/9DNqn/Tj2m/1ZOh/9ZUHr/f3im/4mCqP9SSX//RzWf/0Uypv8+LIf/fWyL/5SHhv+Rhn3/jIF6/5yThv+HcZD/VEaj/2laqv9aUp3/kpKw/6Wiwf+npr3/a2Wc/1Y/pv9PPKH/SjWI/3tphf+Lf33/iX11/4h9df+SiYD/mYqJ/3Bfmv9rXqb/TUKg/4OEr/+knrX/l5Wr/15Sof9wXK//UECY/19Jhf+DdHz/iHx0/4R4cP+GenL/jYJ7/5uPhv+CdZL/XE+k/0I0lP9gWp3/nJey/3RwpP9dSa7/aliz/0w3mP9vXX7/iXt3/4V5cP+CdW3/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.min.js"></script>
+	<title> Paradigm </title>
+</head>
+<body>
+	<script type = "text/javascript">
+		google.charts.load('current', {'packages':['corechart', 'table']});
+
+		function displayAll() {
+			document.getElementById('results').innerHTML = ""
+			$.ajax({
+				method: "GET",
+				url: "./displayNumber",
+				contentType: "application/json"
+			})
+			.done(function(data) {
+				count = data['count']
+				checkStatus()
+				$('#results').append("Total number of records found: " + count + "<br>")
+			})
+		}
+
+		function displayFewRecords() {
+			document.getElementById('results').innerHTML = ""
+			var num = $('#numOfRecords').val()
+			$.ajax({
+				method: "POST",
+				url: "./displayFewRecords",
+				contentType: "application/json",
+				data: JSON.stringify({num: num})
+			})
+			.done(function(data) {
+				$('#results').append("The first " + num + " records:<br>")
+				var tab = new google.visualization.DataTable();
+				tab.addColumn('string', 'Time')
+				tab.addColumn('number', 'Latitude')
+				tab.addColumn('number', 'Longitude')
+				tab.addColumn('number', 'Magnitude')
+				tab.addColumn('string', 'Place')
+				for(i = 0; i < data['result'].length; i++) {
+					tab.addRows([[data['result'][i][0], data['result'][i][1],
+						data['result'][i][2], data['result'][i][3], data['result'][i][4]]])
+				}
+				var options = {
+					'title': 'TableData',
+				}
+				var chart = new google.visualization.Table(document.getElementById('results'));
+		        chart.draw(tab, options);
+		        checkStatus()
+			})
+		}
+		function getPie() {
+			document.getElementById('results').innerHTML = ""
+			$.ajax({
+				method: "GET",
+				url: "./displayPie",
+				contentType: "application/json"
+			})
+			.done(function(data) {
+				var tab = new google.visualization.DataTable();
+				tab.addColumn('string', 'Mag');
+				tab.addColumn('number', 'Val');
+				var list = ['negMag', 'mag3', 'mag5', 'mag7', 'mag10']
+				for(i = 0; i < data['result'].length; i++) {
+					tab.addRows([[list[i], data['result'][i]]])
+				}
+				var options = {
+					'title': 'TableData',
+					'height': 1000,
+					'width': 1000
+				}
+				var chart = new google.visualization.PieChart(document.getElementById('results'));
+		        chart.draw(tab, options);
+			})
+			checkStatus()
+		}
+		var socket = io.connect();
+		function checkStatus(){
+			socket.emit('change_event')
+
+		}
+    	socket.on('response', function(msg) {
+        	document.getElementById('log').innerHTML = msg;
+    	});
+    	//setInterval(checkStatus, 300)
+	</script>
+
+Show total number of records: <button onclick="displayAll()">DisplayNumber</button>
+<br><br>
+Show first n number of records: 
+<input id="numOfRecords" placeholder="Enter n">
+<button onclick="displayFewRecords()">Display</button>
+<br><br>
+
+Show pie chart for earthquake magnitude range: <button onclick="getPie()">DisplayPie</button>
+<br><br> 
+<br><br>
+
+
+
+Upload an image and store it on the server.
+<br>
+<form action="/storeImage" method="post" enctype="multipart/form-data">
+Choose the file: <input type="file" name="image"/><br>
+<input type="submit" value="Upload"/>
+</form> 
+<br><br>
+pandas implementation<br>
+Upload a CSV file and add to SQL database: <br>
+<form action="/createTable" method="post" enctype="multipart/form-data">
+Choose the file: <input type="file" accept=".csv" name="csv"/><br>
+Enter table name: <input type="text" name="tableName" placeholder="DefaultIsFileName"/><br>
+<input type="submit" value="Upload"/>
+</form> 
+<br><br>
+Work with pandas dataframe
+<br>
+<form action="/getCSVdetails" method="post" enctype="multipart/form-data">
+Choose the csv file: <input type="file" accept=".csv" name="forpandas"/><br>
+Display these fields: <input type="text" name="fields" placeholder="def=All,multiCommaSep"/><br>
+Enter number of records: <input type="text" name="numRec" placeholder="DefaultIs10"/><br><br>
+<input type="submit" value="Upload"/>
+</form> 
+<br><br>
+
+<p id="results"></p>
+<p id="log"></p>
+<script>
+	var disp = '{{display}}'
+	console.log("ho")
+	if (disp == 'None'){
+		console.log("hier")
+		console.log(disp)
+		disp = ' '
+	}
+	document.getElementById('results').innerHTML = disp 
+</script>
+</body>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<head>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+</head>
+<body>
+	Requested Data
+	<p id="results"></p>
+	<script type="text/javascript">
+			var result = ('{{result}}').replace(/&#39;|\[|\]/g,'')
+			var numberOfFields = parseInt('{{attrListLen}}')
+			result = result.split(',')
+			var finalResult = []
+			//console.log(result.length)
+			//console.log(numberOfFields)
+			for(i = 0; i < result.length; i = i + numberOfFields) {
+				var temp = []
+				for(j = 0; j < numberOfFields; j++) {
+					temp.push(result[i +j])
+				}
+				finalResult.push(temp)
+			}
+			for(i = 0; i < finalResult.length; i++) {
+				$('#results').append("<br>" + finalResult[i])
+			}
+	</script>
+
+	<br><nr><br>
+	<form action="/goHome" method="post">
+		ClickToGoToHomePage: <input type="submit" value="Home"/>
+	</form>
+</body>
